@@ -32,24 +32,26 @@ class TimelinePost(Model):
 
 mydb.connect()
 mydb.create_tables([TimelinePost])
+# here
+mydb.close()
 
 @app.route('/')
 def index():
-return render_template('index.html', title="MLH Fellow", url=os.getenv("URL"))
+    return render_template('index.html', title="MLH Fellow", url=os.getenv("URL"))
 
 @app.route('/timeline')
 def timeline():
-    return rendertemplate('timeline.html', title="Timeline", url=os.getenv("URL"))
+    return render_template('timeline.html', title="Timeline", url=os.getenv("URL"))
 
 @app.route('/api/timeline_post', methods=['POST'])
 def post_time_line_post():
-    if 'name' not in request.form or request.form['name'] == "":
+    if request.form['name'] == "":
         return "Invalid name", 400
 
-    if 'email' not in request.form or request.form['email'] == "" or '@' not in request.form['email']:
+    if request.form['email'] == "" or '@' not in request.form['email']:
         return "Invalid email", 400
 
-    if 'content' not in request.form or request.form['content'] == "":
+    if request.form['content'] == "":
         return "Invalid content", 400
 
     name = request.form['name']
@@ -58,6 +60,8 @@ def post_time_line_post():
 
     timeline_post = TimelinePost.create(name=name, email=email, content=content)
 
+    # here
+    mydb.close()
     return model_to_dict(timeline_post)
 
 @app.route('/api/timeline_post', methods=['GET'])
@@ -68,3 +72,5 @@ def get_time_line_post():
             for p in TimelinePost.select().order_by(TimelinePost.created_at.desc())
         ]
     }
+# here
+mydb.close()
