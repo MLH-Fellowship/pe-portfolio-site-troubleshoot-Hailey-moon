@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import datetime
 from peewee import *
 from playhouse.shortcuts import model_to_dict
+import re
 
 load_dotenv()
 app = Flask(__name__)
@@ -33,7 +34,7 @@ class TimelinePost(Model):
 mydb.connect()
 mydb.create_tables([TimelinePost])
 # here
-mydb.close()
+# mydb.close()
 
 @app.route('/')
 def index():
@@ -45,13 +46,15 @@ def timeline():
 
 @app.route('/api/timeline_post', methods=['POST'])
 def post_time_line_post():
-    if request.form['name'] == "":
+    regex = r'\b[a-za-z0-9.%+-]+@[a-za-z0-9.-]+.[a-z|a-z]{2,}\b'
+
+    if 'name' not in request.form or not request.form['name']:
         return "Invalid name", 400
 
-    if request.form['email'] == "" or '@' not in request.form['email']:
+    if 'email' not in request.form or not (re.fullmatch(regex, request.form['email'])):
         return "Invalid email", 400
 
-    if request.form['content'] == "":
+    if 'content' not in request.form or not request.form['content']:
         return "Invalid content", 400
 
     name = request.form['name']
@@ -61,7 +64,7 @@ def post_time_line_post():
     timeline_post = TimelinePost.create(name=name, email=email, content=content)
 
     # here
-    mydb.close()
+    # mydb.close()
     return model_to_dict(timeline_post)
 
 @app.route('/api/timeline_post', methods=['GET'])
@@ -73,4 +76,4 @@ def get_time_line_post():
         ]
     }
 # here
-mydb.close()
+# mydb.close()
